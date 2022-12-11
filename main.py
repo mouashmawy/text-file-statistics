@@ -1,7 +1,8 @@
 import string
 import matplotlib.pyplot as plt
 import numpy as np
-
+import tkinter as tk
+from tkinter import Button, Label, Entry
 
 
 class Stat:
@@ -114,10 +115,52 @@ class Stat:
 
 
 
-App = Stat("text.txt")
-App.calc()
-# App.freqPlot()
-# App.getHighest()
-# App.PMF()
-# App.CDF()
-App.showMean()
+# App = Stat("text.txt")
+# App.calc()
+# # App.freqPlot()
+# # App.getHighest()
+# # App.PMF()
+# # App.CDF()
+# App.showMean()
+
+
+class GUIApp:
+    def __init__(self, master):
+        self.master = master
+        self.frame = tk.Frame(self.master)
+        self.frame.config(bg="#1b1464", padx=50,pady=50)
+
+        self.button1 = tk.Button(self.frame, text = 'New Window', width = 25, command = self.new_window)
+
+        self.welcome = Label(self.frame, text="Welcome in T-Stat App\n", font='Arial 20 bold', bg='#1b1464', fg='#00ffc5')
+        self.welcome.pack()
+
+        self.fileNameEntry = Entry(self.frame,bg='#1b1464', fg='#ec008c')
+        self.HighestNumEntry = Entry(self.frame,bg='#1b1464', fg='#ec008c')
+        self.fileNameEntry.pack()
+        self.HighestNumEntry.pack()
+
+
+
+
+        self.frame.pack()
+
+    def new_window(self):
+        self.newWindow = tk.Toplevel(self.master)
+        # self.app = Demo2(self.newWindow)
+
+
+
+
+def main():
+    root = tk.Tk()
+    root.title('T-Stat')
+    root.minsize(500, 400)
+    root.config(bg="#1b1464")
+    # root.iconbitmap('icon.ico')
+
+    App = GUIApp(root)
+    root.mainloop()
+
+if __name__ == '__main__':
+    main()
