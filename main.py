@@ -12,9 +12,9 @@ FG_CLR = "#00ffc5"
 
 
 class Stat:
-    def __init__(self, filename:str):
+    def __init__(self, filename:str,numOfHighestFreqInput:int):
         self.filename = filename
-
+        self.numOfHighestFreqInput = numOfHighestFreqInput
         self.textFileLength=0
         self.textInFile = ""
         self.sortedFreqList =[]
@@ -93,13 +93,10 @@ class Stat:
 
 
     def getHighest(self):
-        try:
-            numOfHighestFreqInput = 5  # int(input("Number of highest frequencies letters: "))
-        except:
-            print("not a number....")
-            exit(0)
-        for i in range(numOfHighestFreqInput):
-            print(f"letter {self.sortedFreqList[i][0]}:: {self.sortedFreqList[i][1]}")
+        TextOfHighest =""
+        for i in range(self.numOfHighestFreqInput):
+            TextOfHighest+=f"letter {self.sortedFreqList[i][0]}:: {self.sortedFreqList[i][1]}\n"
+        return TextOfHighest
 
 
     def PMF(self):
@@ -121,6 +118,11 @@ class Stat:
 class GUIApp:
     def __init__(self, master):
         self.master = master
+
+        self.fileNameText = None
+        self.highestNumText = None
+
+        ##########frame 1
         self.frame1 = tk.Frame(self.master,bg=BK_CLR, padx=50,pady=50)
         self.welcome = Label(self.frame1, text="Welcome in T-Stat App", font='Arial 20 bold', bg=BK_CLR, fg=FG_CLR)
         self.welcome.grid(row=0,column=0)
@@ -139,8 +141,8 @@ class GUIApp:
 
         ##########frame 3
         self.frame3 = tk.Frame(self.master,bg=BK_CLR,padx=10,pady=10)
-        self.enterButton = Button(self.frame3, text='ENTER', command={},bg=FG_CLR, padx=15, pady=10, borderwidth=4)
-        self.processingLabel = Label(self.frame3, text=f"processing xxxx.txt file with Y most frequent", font='Arial 11', bg=BK_CLR, fg=FG_CLR)
+        self.enterButton = Button(self.frame3, text='ENTER', command=self.calculating,bg=FG_CLR, padx=15, pady=10, borderwidth=4)
+        self.processingLabel = Label(self.frame3, text=f"Enter file name and number...", font='Arial 11', bg=BK_CLR, fg=FG_CLR)
 
         self.enterButton.grid(row=0,column=0)
         self.processingLabel.grid(row=1,column=0)
@@ -160,12 +162,7 @@ class GUIApp:
 
         ##########frame 5
         self.frame5 = tk.Frame(self.master, bg=BK_CLR, padx=10, pady=10)
-        MeanVarSkewKertext = \
-f'''Mean:
-Var:
-Skew:
-Ker:
-'''
+        MeanVarSkewKertext = f'Mean:{0}\nVar:{0}\nSkew:{0}\nKer:{0}\n'
         self.MeanVarSkewKerButton = Button(self.frame5, text='Mean\nVar\nSkew\nKer', command={}, bg=FG_CLR, padx=15, pady=10, borderwidth=4)
         self.MeanVarSkewKerLabel = Label(self.frame5, text=MeanVarSkewKertext, font='Arial 11', bg=BK_CLR, fg=FG_CLR)
 
@@ -178,6 +175,23 @@ Ker:
         self.frame3.pack()
         self.frame4.pack()
         self.frame5.pack()
+
+
+    def calculating(self):
+        self.fileNameText = self.fileNameEntry.get()
+        self.highestNumText = self.HighestNumEntry.get()
+        statsApp = Stat(self.fileNameText, int(self.highestNumText))
+        statsApp.calc()
+        self.processingLabel.config(text=f"processing {self.fileNameText} file with {self.highestNumText} most frequent")
+        statsApp.freqPlot()
+        statsApp.close()
+        # statsApp.getHighest()
+        # statsApp.PMF()
+        # statsApp.CDF()
+        # statsApp.showMean()
+        pass
+
+
 
     def new_window(self):
         self.newWindow = tk.Toplevel(self.master)
