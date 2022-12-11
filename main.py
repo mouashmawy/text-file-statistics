@@ -17,15 +17,18 @@ class Stat:
         self.y_PMF = None
         self.y_CDF = None
 
+        self.mean = None
+        self.variance = None
+
         # preparing letters lists
         # aAbBcC...012...789
-        allLetersList = ""
+        self.allLetersList = ""
         for i in range(len(string.ascii_lowercase)):
-            allLetersList += string.ascii_lowercase[i] + string.ascii_uppercase[i]
-        allLetersList += string.digits
+            self.allLetersList += string.ascii_lowercase[i] + string.ascii_uppercase[i]
+        self.allLetersList += string.digits
         # preparing letters lists
         self.letterFreqDict = {}
-        for letter in allLetersList:
+        for letter in self.allLetersList:
             self.letterFreqDict[letter] = 0
 
         # Reading text from file
@@ -68,7 +71,11 @@ class Stat:
         for i in range(1, len(self.y_PMF)):
             self.y_CDF[i] = self.y_CDF[i] + self.y_CDF[i - 1]
 
-
+        #calc mean
+        self.mean = np.sum(self.x_numbers * self.y_PMF)
+        #calc var
+        self.variance = np.sum(self.x_numbers ** 2 * self.y_PMF) - self.mean ** 2
+        # variance2 = sum((self.x_numbers-self.mean)**2 * PMF)
 
     def freqPlot(self):
         plt.bar(self.x_letters, self.y_freq)
@@ -98,17 +105,12 @@ class Stat:
         plt.show()
         pass
 
-    def mean(self):
-        mean = np.sum(self.x_numbers * self.y_PMF)
-        print(mean)
+    def showMean(self):
+        print(self.mean)
+        print(self.variance)
 
-        variance = np.sum(self.x_numbers ** 2 * self.y_PMF) - mean ** 2
-        # variance2 = sum((self.x_numbers-mean)**2 * PMF)
-        print(np.sum(self.x_numbers * self.y_freq) / self.textFileLength)
-        pass
 
-    def variance(self):
-        pass
+
 
 
 
@@ -116,5 +118,6 @@ App = Stat("text.txt")
 App.calc()
 # App.freqPlot()
 # App.getHighest()
-App.PMF()
-App.CDF()
+# App.PMF()
+# App.CDF()
+App.showMean()
