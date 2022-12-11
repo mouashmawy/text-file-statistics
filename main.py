@@ -4,6 +4,12 @@ import numpy as np
 import tkinter as tk
 from tkinter import Button, Label, Entry
 
+#GLOBAL VARS
+BK_CLR = "#1b1464"
+FG_CLR = "#00ffc5"
+
+
+
 
 class Stat:
     def __init__(self, filename:str):
@@ -112,38 +118,66 @@ class Stat:
 
 
 
-
-
-
-# App = Stat("text.txt")
-# App.calc()
-# # App.freqPlot()
-# # App.getHighest()
-# # App.PMF()
-# # App.CDF()
-# App.showMean()
-
-
 class GUIApp:
     def __init__(self, master):
         self.master = master
-        self.frame = tk.Frame(self.master)
-        self.frame.config(bg="#1b1464", padx=50,pady=50)
+        self.frame1 = tk.Frame(self.master,bg=BK_CLR, padx=50,pady=50)
+        self.welcome = Label(self.frame1, text="Welcome in T-Stat App", font='Arial 20 bold', bg=BK_CLR, fg=FG_CLR)
+        self.welcome.grid(row=0,column=0)
 
-        self.button1 = tk.Button(self.frame, text = 'New Window', width = 25, command = self.new_window)
+        ##########frame 2
+        self.frame2 = tk.Frame(self.master,bg=BK_CLR, padx=10,pady=10)
+        self.fileNameLabel = Label(self.frame2, text="File Name", font='Arial 11', bg=BK_CLR, fg=FG_CLR)
+        self.HighestNumLabel = Label(self.frame2, text="# of Highest", font='Arial 11', bg=BK_CLR, fg=FG_CLR)
+        self.fileNameLabel.grid(row=0,column=0)
+        self.HighestNumLabel.grid(row=0,column=1)
 
-        self.welcome = Label(self.frame, text="Welcome in T-Stat App\n", font='Arial 20 bold', bg='#1b1464', fg='#00ffc5')
-        self.welcome.pack()
+        self.fileNameEntry = Entry(self.frame2, bg=BK_CLR, fg='#ec008c')
+        self.HighestNumEntry = Entry(self.frame2, bg=BK_CLR, fg='#ec008c')
+        self.fileNameEntry.grid(row=1,column=0)
+        self.HighestNumEntry.grid(row=1,column=1)
 
-        self.fileNameEntry = Entry(self.frame,bg='#1b1464', fg='#ec008c')
-        self.HighestNumEntry = Entry(self.frame,bg='#1b1464', fg='#ec008c')
-        self.fileNameEntry.pack()
-        self.HighestNumEntry.pack()
+        ##########frame 3
+        self.frame3 = tk.Frame(self.master,bg=BK_CLR,padx=10,pady=10)
+        self.enterButton = Button(self.frame3, text='ENTER', command={},bg=FG_CLR, padx=15, pady=10, borderwidth=4)
+        self.processingLabel = Label(self.frame3, text=f"processing xxxx.txt file with Y most frequent", font='Arial 11', bg=BK_CLR, fg=FG_CLR)
+
+        self.enterButton.grid(row=0,column=0)
+        self.processingLabel.grid(row=1,column=0)
+
+        ##########frame 4
+        self.frame4 = tk.Frame(self.master, bg=BK_CLR, padx=10, pady=10)
+        self.freqButton = Button(self.frame4, text='Freq graph', command={}, bg=FG_CLR, padx=15, pady=10, borderwidth=4)
+        self.numHighestButton = Button(self.frame4, text='Most Freq', command={}, bg=FG_CLR, padx=15, pady=10, borderwidth=4)
+        self.PMFButton = Button(self.frame4, text='show PMF', command={}, bg=FG_CLR, padx=15, pady=10, borderwidth=4)
+        self.CDFButton = Button(self.frame4, text='show CDF', command={}, bg=FG_CLR, padx=15, pady=10, borderwidth=4)
+
+        self.freqButton.grid(row=0,column=0)
+        self.numHighestButton.grid(row=0,column=1)
+        self.PMFButton.grid(row=1,column=0)
+        self.CDFButton.grid(row=1,column=1)
 
 
+        ##########frame 5
+        self.frame5 = tk.Frame(self.master, bg=BK_CLR, padx=10, pady=10)
+        MeanVarSkewKertext = \
+f'''Mean:
+Var:
+Skew:
+Ker:
+'''
+        self.MeanVarSkewKerButton = Button(self.frame5, text='Mean\nVar\nSkew\nKer', command={}, bg=FG_CLR, padx=15, pady=10, borderwidth=4)
+        self.MeanVarSkewKerLabel = Label(self.frame5, text=MeanVarSkewKertext, font='Arial 11', bg=BK_CLR, fg=FG_CLR)
 
+        self.MeanVarSkewKerButton.grid(row=0,column=0)
+        self.MeanVarSkewKerLabel.grid(row=0,column=1)
 
-        self.frame.pack()
+        #frames
+        self.frame1.pack()
+        self.frame2.pack()
+        self.frame3.pack()
+        self.frame4.pack()
+        self.frame5.pack()
 
     def new_window(self):
         self.newWindow = tk.Toplevel(self.master)
@@ -154,10 +188,10 @@ class GUIApp:
 
 def main():
     root = tk.Tk()
-    root.title('T-Stat')
+    root.title('T-Stat App - Text File Statistics ')
     root.minsize(500, 400)
-    root.config(bg="#1b1464")
-    # root.iconbitmap('icon.ico')
+    root.config(bg=BK_CLR)
+    root.iconbitmap('icon.ico')
 
     App = GUIApp(root)
     root.mainloop()
