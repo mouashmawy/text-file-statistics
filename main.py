@@ -86,8 +86,8 @@ class Stat:
         # variance2 = sum((self.x_numbers-self.mean)**2 * PMF)
 
     def freqPlot(self):
-        plt.bar(self.x_letters, self.y_freq)
-        plt.show()
+        # plt.bar(self.x_letters, self.y_freq)
+        # plt.show()
         plt.plot(self.x_letters, self.y_freq)
         plt.show()
         pass
@@ -111,8 +111,8 @@ class Stat:
         pass
 
     def getMean(self):
-        print(self.mean)
-        print(self.variance)
+        text = f"Mean:{self.mean}\nVariance:{self.variance}"
+        return text
 
 
 
@@ -150,10 +150,10 @@ class GUIApp:
 
         ##########frame 4
         self.frame4 = tk.Frame(self.master, bg=BK_CLR, padx=10, pady=10)
-        self.freqButton = Button(self.frame4, text='Freq graph', command={}, bg=FG_CLR, padx=15, pady=10, borderwidth=4)
+        self.freqButton = Button(self.frame4, text='Freq graph', command=self.showFreqGraph, bg=FG_CLR, padx=15, pady=10, borderwidth=4)
         self.numHighestButton = Button(self.frame4, text='Most Freq', command=self.showHighestFreq, bg=FG_CLR, padx=15, pady=10, borderwidth=4)
-        self.PMFButton = Button(self.frame4, text='show PMF', command={}, bg=FG_CLR, padx=15, pady=10, borderwidth=4)
-        self.CDFButton = Button(self.frame4, text='show CDF', command={}, bg=FG_CLR, padx=15, pady=10, borderwidth=4)
+        self.PMFButton = Button(self.frame4, text='show PMF', command=self.showPMF, bg=FG_CLR, padx=15, pady=10, borderwidth=4)
+        self.CDFButton = Button(self.frame4, text='show CDF', command=self.showCDF, bg=FG_CLR, padx=15, pady=10, borderwidth=4)
 
         self.freqButton.grid(row=0,column=0)
         self.numHighestButton.grid(row=0,column=1)
@@ -164,7 +164,7 @@ class GUIApp:
         ##########frame 5
         self.frame5 = tk.Frame(self.master, bg=BK_CLR, padx=10, pady=10)
         MeanVarSkewKertext = f'Mean:{0}\nVar:{0}\nSkew:{0}\nKer:{0}\n'
-        self.MeanVarSkewKerButton = Button(self.frame5, text='Mean\nVar\nSkew\nKer', command={}, bg=FG_CLR, padx=15, pady=10, borderwidth=4)
+        self.MeanVarSkewKerButton = Button(self.frame5, text='Mean\nVar\nSkew\nKer', command=self.showMean, bg=FG_CLR, padx=15, pady=10, borderwidth=4)
         self.MeanVarSkewKerLabel = Label(self.frame5, text=MeanVarSkewKertext, font='Arial 11', bg=BK_CLR, fg=FG_CLR)
 
         self.MeanVarSkewKerButton.grid(row=0,column=0)
@@ -184,18 +184,15 @@ class GUIApp:
         self.statsApp = Stat(self.fileNameText, int(self.highestNumText))
         self.statsApp.calc()
         self.processingLabel.config(text=f"processing {self.fileNameText} file with {self.highestNumText} most frequent")
-        #
-        #
-        # statsApp.CDF()
-        # statsApp.showMean()
-        pass
+
 
     def showFreqGraph(self):
+        self.validate()
         self.statsApp.freqPlot()
 
 
     def showHighestFreq(self):
-        print(5)
+        self.validate()
         if self.additionalWindow1 != None:
             self.additionalWindow1.destroy()
 
@@ -208,16 +205,16 @@ class GUIApp:
 
 
     def showPMF(self):
+        self.validate()
         self.statsApp.PMF()
 
 
     def showCDF(self):
+        self.validate()
         self.statsApp.CDF()
 
     def showMean(self):
-        if self.additionalWindow1 != None:
-            self.additionalWindow1.destroy()
-
+        self.validate()
         self.additionalWindow1 = tk.Toplevel(self.master)
 
         self.frameNew = tk.Frame(self.additionalWindow1)
@@ -226,7 +223,12 @@ class GUIApp:
         self.frameNew.pack()
 
 
-
+    def validate(self):
+        self.calculating()
+        if self.additionalWindow1 != None:
+            self.additionalWindow1.destroy()
+        plt.close('all')
+        pass
 
 def main():
     root = tk.Tk()
