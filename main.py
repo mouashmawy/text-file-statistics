@@ -27,6 +27,7 @@ class Stat:
         self.mean = None
         self.variance = None
 
+
         # preparing letters lists
         # aAbBcC...012...789
         self.allLetersList = ""
@@ -109,7 +110,7 @@ class Stat:
         plt.show()
         pass
 
-    def showMean(self):
+    def getMean(self):
         print(self.mean)
         print(self.variance)
 
@@ -118,10 +119,10 @@ class Stat:
 class GUIApp:
     def __init__(self, master):
         self.master = master
-
+        self.additionalWindow1 = None
         self.fileNameText = None
         self.highestNumText = None
-
+        self.statsApp = None
         ##########frame 1
         self.frame1 = tk.Frame(self.master,bg=BK_CLR, padx=50,pady=50)
         self.welcome = Label(self.frame1, text="Welcome in T-Stat App", font='Arial 20 bold', bg=BK_CLR, fg=FG_CLR)
@@ -150,7 +151,7 @@ class GUIApp:
         ##########frame 4
         self.frame4 = tk.Frame(self.master, bg=BK_CLR, padx=10, pady=10)
         self.freqButton = Button(self.frame4, text='Freq graph', command={}, bg=FG_CLR, padx=15, pady=10, borderwidth=4)
-        self.numHighestButton = Button(self.frame4, text='Most Freq', command={}, bg=FG_CLR, padx=15, pady=10, borderwidth=4)
+        self.numHighestButton = Button(self.frame4, text='Most Freq', command=self.showHighestFreq, bg=FG_CLR, padx=15, pady=10, borderwidth=4)
         self.PMFButton = Button(self.frame4, text='show PMF', command={}, bg=FG_CLR, padx=15, pady=10, borderwidth=4)
         self.CDFButton = Button(self.frame4, text='show CDF', command={}, bg=FG_CLR, padx=15, pady=10, borderwidth=4)
 
@@ -180,22 +181,49 @@ class GUIApp:
     def calculating(self):
         self.fileNameText = self.fileNameEntry.get()
         self.highestNumText = self.HighestNumEntry.get()
-        statsApp = Stat(self.fileNameText, int(self.highestNumText))
-        statsApp.calc()
+        self.statsApp = Stat(self.fileNameText, int(self.highestNumText))
+        self.statsApp.calc()
         self.processingLabel.config(text=f"processing {self.fileNameText} file with {self.highestNumText} most frequent")
-        statsApp.freqPlot()
-        statsApp.close()
-        # statsApp.getHighest()
-        # statsApp.PMF()
+        #
+        #
         # statsApp.CDF()
         # statsApp.showMean()
         pass
 
+    def showFreqGraph(self):
+        self.statsApp.freqPlot()
 
 
-    def new_window(self):
-        self.newWindow = tk.Toplevel(self.master)
-        # self.app = Demo2(self.newWindow)
+    def showHighestFreq(self):
+        print(5)
+        if self.additionalWindow1 != None:
+            self.additionalWindow1.destroy()
+
+        self.additionalWindow1 = tk.Toplevel(self.master)
+
+        self.frameNew = tk.Frame(self.additionalWindow1)
+        textOfHighest = "5555555555"#self.statsApp.getHighest()
+        Label(self.frameNew, text=textOfHighest, font='Arial 16', bg=BK_CLR, fg=FG_CLR).pack()
+        self.frameNew.pack()
+
+
+    def showPMF(self):
+        self.statsApp.PMF()
+
+
+    def showCDF(self):
+        self.statsApp.CDF()
+
+    def showMean(self):
+        if self.additionalWindow1 != None:
+            self.additionalWindow1.destroy()
+
+        self.additionalWindow1 = tk.Toplevel(self.master)
+
+        self.frameNew = tk.Frame(self.additionalWindow1)
+        textToShow = self.statsApp.getMean()
+        Label(self.frameNew, text=textToShow, font='Arial 16', bg=BK_CLR, fg=FG_CLR).pack()
+        self.frameNew.pack()
 
 
 
