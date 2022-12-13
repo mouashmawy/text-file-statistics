@@ -3,6 +3,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import tkinter as tk
 from tkinter import Button, Label, Entry
+import sys
 
 #GLOBAL VARS
 BK_CLR = "#1b1464"
@@ -154,29 +155,26 @@ class GUIApp:
         self.numHighestButton = Button(self.frame4, text='Most Freq', command=self.showHighestFreq, bg=FG_CLR, padx=15, pady=10, borderwidth=4)
         self.PMFButton = Button(self.frame4, text='show PMF', command=self.showPMF, bg=FG_CLR, padx=15, pady=10, borderwidth=4)
         self.CDFButton = Button(self.frame4, text='show CDF', command=self.showCDF, bg=FG_CLR, padx=15, pady=10, borderwidth=4)
+        self.someStatsButton = Button(self.frame4, text='some stats', command=self.showMean, bg=FG_CLR, padx=15, pady=10, borderwidth=4)
+        self.exitButton = Button(self.frame4, text='Exit', command=self.exiting, bg=FG_CLR, padx=15, pady=10, borderwidth=4)
 
         self.freqButton.grid(row=0,column=0)
         self.numHighestButton.grid(row=0,column=1)
         self.PMFButton.grid(row=1,column=0)
         self.CDFButton.grid(row=1,column=1)
+        self.someStatsButton.grid(row=2, column=0)
+        self.exitButton.grid(row=2, column=1)
 
 
-        ##########frame 5
-        self.frame5 = tk.Frame(self.master, bg=BK_CLR, padx=10, pady=10)
-        MeanVarSkewKertext = f'Mean:{0}\nVar:{0}\nSkew:{0}\nKer:{0}\n'
-        self.MeanVarSkewKerButton = Button(self.frame5, text='Mean\nVar\nSkew\nKer', command=self.showMean, bg=FG_CLR, padx=15, pady=10, borderwidth=4)
-        self.MeanVarSkewKerLabel = Label(self.frame5, text=MeanVarSkewKertext, font='Arial 11', bg=BK_CLR, fg=FG_CLR)
-
-        self.MeanVarSkewKerButton.grid(row=0,column=0)
-        self.MeanVarSkewKerLabel.grid(row=0,column=1)
 
         #frames
         self.frame1.pack()
         self.frame2.pack()
         self.frame3.pack()
         self.frame4.pack()
-        self.frame5.pack()
 
+    def exiting(self):
+        sys.exit("Thanks for using T-Stat App...")
 
     def calculating(self):
         self.fileNameText = self.fileNameEntry.get()
@@ -199,7 +197,7 @@ class GUIApp:
         self.additionalWindow1 = tk.Toplevel(self.master)
 
         self.frameNew = tk.Frame(self.additionalWindow1)
-        textOfHighest = "5555555555"#self.statsApp.getHighest()
+        textOfHighest = self.statsApp.getHighest()
         Label(self.frameNew, text=textOfHighest, font='Arial 16', bg=BK_CLR, fg=FG_CLR).pack()
         self.frameNew.pack()
 
