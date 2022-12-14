@@ -4,6 +4,7 @@ import numpy as np
 import tkinter as tk
 from tkinter import Button, Label, Entry
 import sys
+import math
 
 #GLOBAL VARS
 BK_CLR = "#1b1464"
@@ -26,8 +27,10 @@ class Stat:
         self.y_CDF = None
 
         self.mean = None
+        self.mode = None
         self.variance = None
-
+        self.stdDeviation = None
+        self.skewness = None
 
         # preparing letters lists
         # aAbBcC...012...789
@@ -35,7 +38,8 @@ class Stat:
         for i in range(len(string.ascii_lowercase)):
             self.allLetersList += string.ascii_lowercase[i] + string.ascii_uppercase[i]
         self.allLetersList += string.digits
-        # preparing letters lists
+
+        # preparing the letters freq dictionary
         self.letterFreqDict = {}
         for letter in self.allLetersList:
             self.letterFreqDict[letter] = 0
@@ -43,31 +47,25 @@ class Stat:
         # Reading text from file
         textFileName = self.filename
         try:
-            file = open(textFileName, encoding='utf-8')
-            self.textInFile = file.read().replace(" ", "")
-            self.textFileLength = len(self.textInFile)
+            file = open("samples/"+textFileName, encoding='utf-8')
+            tempTextInFile = file.read().replace(" ", "")
         finally:
             file.close()
 
+        for letter in tempTextInFile:
+            if letter in self.allLetersList:
+                self.textInFile+=letter
+        self.textFileLength = len(self.textInFile)
 
     def __str__(self):
         return f"File name: {self.filename}"
 
-    def __inputFile(self):
-        # Reading text from file
-        textFileName = self.filename
-        try:
-            file = open(textFileName, encoding='utf-8')
-            self.textInFile = file.read().replace(" ", "")
-            self.textFileLength = len(self.textInFile)
-        finally:
-            file.close()
 
     def calc(self):
         for letter in self.textInFile:
             self.letterFreqDict[letter] += 1
         self.sortedFreqList = sorted(self.letterFreqDict.items(), key=lambda kv: kv[1], reverse=1)
-
+        print(self.sortedFreqList)
         self.x_letters = np.array(list(self.letterFreqDict.keys()))
         self.y_freq = np.array(list(self.letterFreqDict.values()))
 
@@ -84,7 +82,15 @@ class Stat:
         self.mean = np.sum(self.x_numbers * self.y_PMF)
         #calc var
         self.variance = np.sum(self.x_numbers ** 2 * self.y_PMF) - self.mean ** 2
-        # variance2 = sum((self.x_numbers-self.mean)**2 * PMF)
+        # variance2 = sum((self.x_numbers-self.mean)**2 * PMF) #another way to calc it
+
+        #calc std deviation
+        self.stdDeviation = math.sqrt(self.variance)
+
+        #calc skewness
+        self.mode=0
+        self.skewness = (self.mean - self.mode)/self.stdDeviation
+
 
     def freqPlot(self):
         # plt.bar(self.x_letters, self.y_freq)
@@ -156,7 +162,7 @@ class GUIApp:
         self.PMFButton = Button(self.frame4, text='show PMF', command=self.showPMF, bg=FG_CLR, padx=15, pady=10, borderwidth=4)
         self.CDFButton = Button(self.frame4, text='show CDF', command=self.showCDF, bg=FG_CLR, padx=15, pady=10, borderwidth=4)
         self.someStatsButton = Button(self.frame4, text='some stats', command=self.showMean, bg=FG_CLR, padx=15, pady=10, borderwidth=4)
-        self.exitButton = Button(self.frame4, text='Exit', command=self.exiting, bg=FG_CLR, padx=15, pady=10, borderwidth=4)
+        self.exitButton = Button(self.frame4, text='Exit App', command=self.exiting, bg=FG_CLR, padx=15, pady=10, borderwidth=4)
 
         self.freqButton.grid(row=0,column=0)
         self.numHighestButton.grid(row=0,column=1)
@@ -181,7 +187,7 @@ class GUIApp:
         self.highestNumText = self.HighestNumEntry.get()
         self.statsApp = Stat(self.fileNameText, int(self.highestNumText))
         self.statsApp.calc()
-        self.processingLabel.config(text=f"processing {self.fileNameText} file with {self.highestNumText} most frequent")
+        self.processingLabel.config(text=f"processing {self.fileNameText} file with {self.highestNumText} most frequent...")
 
 
     def showFreqGraph(self):
