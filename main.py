@@ -81,14 +81,20 @@ class Stat:
         self.mean = np.sum(self.x_numbers * self.y_PMF)
         #calc var
         self.variance = np.sum(self.x_numbers ** 2 * self.y_PMF) - self.mean ** 2
-        # variance2 = sum((self.x_numbers-self.mean)**2 * PMF) #another way to calc it
+        # self.variance = sum((self.x_numbers-self.mean)**2 * self.y_PMF) #another way to calc it
 
         #calc std deviation
         self.stdDeviation = math.sqrt(self.variance)
 
         #calc skewness
-        self.mode=0
-        self.skewness = (self.mean - self.mode)/self.stdDeviation
+
+        modeLetter = self.sortedFreqList[0][0]
+        self.mode= list(self.letterFreqDict.keys()).index(modeLetter)
+        # self.skewness = (self.mean - self.mode)/self.stdDeviation
+        self.skewness = sum((self.x_numbers-self.mean)**3 * self.y_PMF)/self.stdDeviation**3
+        #calc kurtosis
+        fourthMoment = sum((self.x_numbers-self.mean)**4 * self.y_PMF)
+        self.kurtosis = fourthMoment/self.variance**2
 
 
     def freqPlot(self):
@@ -116,8 +122,8 @@ class Stat:
         plt.show()
         pass
 
-    def getMean(self):
-        text = f"Mean:{self.mean}\nVariance:{self.variance}"
+    def getStatistics(self):
+        text = f"Mean:{round(self.mean,2)}\nVariance:{round(self.variance,2)}\nSkewness:{round(self.skewness,2)}\nKurtosis:{round(self.kurtosis,2)}"
         return text
 
 
@@ -218,11 +224,12 @@ class GUIApp:
 
     def showMean(self):
         self.validate()
-        self.additionalWindow1 = tk.Toplevel(self.master)
+        self.additionalWindow1 = tk.Toplevel(self.master,bg=BK_CLR)
+        self.additionalWindow1.minsize(400, 250)
 
-        self.frameNew = tk.Frame(self.additionalWindow1)
-        textToShow = self.statsApp.getMean()
-        Label(self.frameNew, text=textToShow, font='Arial 16', bg=BK_CLR, fg=FG_CLR).pack()
+        self.frameNew = tk.Frame(self.additionalWindow1,bg=BK_CLR)
+        textToShow = "Statistics\n\n"+self.statsApp.getStatistics()
+        Label(self.frameNew, text=textToShow, font='Arial 16', bg=BK_CLR, fg=FG_CLR).grid(row=0,column=0,sticky="w", padx=50,pady=50)
         self.frameNew.pack()
 
 
