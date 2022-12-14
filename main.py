@@ -4,6 +4,7 @@ import numpy as np
 import tkinter as tk
 from tkinter import Button, Label, Entry
 import sys
+import math
 
 #GLOBAL VARS
 BK_CLR = "#1b1464"
@@ -26,16 +27,19 @@ class Stat:
         self.y_CDF = None
 
         self.mean = None
+        self.mode = None
         self.variance = None
-
+        self.stdDeviation = None
+        self.skewness = None
 
         # preparing letters lists
         # aAbBcC...012...789
         self.allLetersList = ""
+        self.allLetersList += string.digits
         for i in range(len(string.ascii_lowercase)):
             self.allLetersList += string.ascii_lowercase[i] + string.ascii_uppercase[i]
-        self.allLetersList += string.digits
-        # preparing letters lists
+
+        # preparing the letters freq dictionary
         self.letterFreqDict = {}
         for letter in self.allLetersList:
             self.letterFreqDict[letter] = 0
@@ -43,37 +47,30 @@ class Stat:
         # Reading text from file
         textFileName = self.filename
         try:
-            file = open(textFileName, encoding='utf-8')
-            self.textInFile = file.read().replace(" ", "")
-            self.textFileLength = len(self.textInFile)
+            file = open("samples/"+textFileName, encoding='utf-8')
+            tempTextInFile = file.read().replace(" ", "")
         finally:
             file.close()
 
+        for letter in tempTextInFile:
+            if letter in self.allLetersList:
+                self.textInFile+=letter
+        self.textFileLength = len(self.textInFile)
 
     def __str__(self):
         return f"File name: {self.filename}"
 
-    def __inputFile(self):
-        # Reading text from file
-        textFileName = self.filename
-        try:
-            file = open(textFileName, encoding='utf-8')
-            self.textInFile = file.read().replace(" ", "")
-            self.textFileLength = len(self.textInFile)
-        finally:
-            file.close()
 
     def calc(self):
         for letter in self.textInFile:
             self.letterFreqDict[letter] += 1
         self.sortedFreqList = sorted(self.letterFreqDict.items(), key=lambda kv: kv[1], reverse=1)
-
+        print(self.sortedFreqList)
         self.x_letters = np.array(list(self.letterFreqDict.keys()))
         self.y_freq = np.array(list(self.letterFreqDict.values()))
 
         # Generating PMF
-        self.x_numbers = np.array(list(
-            range(10, len(self.x_letters) + 10)))  # Generating a list starting 10 for a rnage in length letter list
+        self.x_numbers = np.array(list(range( len(self.x_letters))))  # Generating a list starting 10 for a rnage in length letter list
         self.y_PMF = self.y_freq / self.textFileLength
         # Generating CDF
         self.y_CDF = self.y_PMF.copy()
@@ -84,7 +81,21 @@ class Stat:
         self.mean = np.sum(self.x_numbers * self.y_PMF)
         #calc var
         self.variance = np.sum(self.x_numbers ** 2 * self.y_PMF) - self.mean ** 2
-        # variance2 = sum((self.x_numbers-self.mean)**2 * PMF)
+        # self.variance = sum((self.x_numbers-self.mean)**2 * self.y_PMF) #another way to calc it
+
+        #calc std deviation
+        self.stdDeviation = math.sqrt(self.variance)
+
+        #calc skewness
+
+        modeLetter = self.sortedFreqList[0][0]
+        self.mode= list(self.letterFreqDict.keys()).index(modeLetter)
+        # self.skewness = (self.mean - self.mode)/self.stdDeviation
+        self.skewness = sum((self.x_numbers-self.mean)**3 * self.y_PMF)/self.stdDeviation**3
+        #calc kurtosis
+        fourthMoment = sum((self.x_numbers-self.mean)**4 * self.y_PMF)
+        self.kurtosis = fourthMoment/self.variance**2
+
 
     def freqPlot(self):
         # plt.bar(self.x_letters, self.y_freq)
@@ -111,8 +122,8 @@ class Stat:
         plt.show()
         pass
 
-    def getMean(self):
-        text = f"Mean:{self.mean}\nVariance:{self.variance}"
+    def getStatistics(self):
+        text = f"Mean:{round(self.mean,2)}\nVariance:{round(self.variance,2)}\nSkewness:{round(self.skewness,2)}\nKurtosis:{round(self.kurtosis,2)}"
         return text
 
 
@@ -156,7 +167,7 @@ class GUIApp:
         self.PMFButton = Button(self.frame4, text='show PMF', command=self.showPMF, bg=FG_CLR, padx=15, pady=10, borderwidth=4)
         self.CDFButton = Button(self.frame4, text='show CDF', command=self.showCDF, bg=FG_CLR, padx=15, pady=10, borderwidth=4)
         self.someStatsButton = Button(self.frame4, text='some stats', command=self.showMean, bg=FG_CLR, padx=15, pady=10, borderwidth=4)
-        self.exitButton = Button(self.frame4, text='Exit', command=self.exiting, bg=FG_CLR, padx=15, pady=10, borderwidth=4)
+        self.exitButton = Button(self.frame4, text='Exit App', command=self.exiting, bg=FG_CLR, padx=15, pady=10, borderwidth=4)
 
         self.freqButton.grid(row=0,column=0)
         self.numHighestButton.grid(row=0,column=1)
@@ -181,7 +192,7 @@ class GUIApp:
         self.highestNumText = self.HighestNumEntry.get()
         self.statsApp = Stat(self.fileNameText, int(self.highestNumText))
         self.statsApp.calc()
-        self.processingLabel.config(text=f"processing {self.fileNameText} file with {self.highestNumText} most frequent")
+        self.processingLabel.config(text=f"processing {self.fileNameText} file with {self.highestNumText} most frequent...")
 
 
     def showFreqGraph(self):
@@ -213,11 +224,12 @@ class GUIApp:
 
     def showMean(self):
         self.validate()
-        self.additionalWindow1 = tk.Toplevel(self.master)
+        self.additionalWindow1 = tk.Toplevel(self.master,bg=BK_CLR)
+        self.additionalWindow1.minsize(400, 250)
 
-        self.frameNew = tk.Frame(self.additionalWindow1)
-        textToShow = self.statsApp.getMean()
-        Label(self.frameNew, text=textToShow, font='Arial 16', bg=BK_CLR, fg=FG_CLR).pack()
+        self.frameNew = tk.Frame(self.additionalWindow1,bg=BK_CLR)
+        textToShow = "Statistics\n\n"+self.statsApp.getStatistics()
+        Label(self.frameNew, text=textToShow, font='Arial 16', bg=BK_CLR, fg=FG_CLR).grid(row=0,column=0,sticky="w", padx=50,pady=50)
         self.frameNew.pack()
 
 
