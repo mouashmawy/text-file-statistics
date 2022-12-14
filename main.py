@@ -35,9 +35,9 @@ class Stat:
         # preparing letters lists
         # aAbBcC...012...789
         self.allLetersList = ""
+        self.allLetersList += string.digits
         for i in range(len(string.ascii_lowercase)):
             self.allLetersList += string.ascii_lowercase[i] + string.ascii_uppercase[i]
-        self.allLetersList += string.digits
 
         # preparing the letters freq dictionary
         self.letterFreqDict = {}
@@ -70,8 +70,7 @@ class Stat:
         self.y_freq = np.array(list(self.letterFreqDict.values()))
 
         # Generating PMF
-        self.x_numbers = np.array(list(
-            range(10, len(self.x_letters) + 10)))  # Generating a list starting 10 for a rnage in length letter list
+        self.x_numbers = np.array(list(range( len(self.x_letters))))  # Generating a list starting 10 for a rnage in length letter list
         self.y_PMF = self.y_freq / self.textFileLength
         # Generating CDF
         self.y_CDF = self.y_PMF.copy()
