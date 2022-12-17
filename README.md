@@ -13,3 +13,12 @@ Moustafa Ashmawy
 
 ### Installation
 ```pip install -r requirements.txt```
+
+
+### Make executable file
+```sh
+pip install pyinstaller
+pyinstaller --onefile main.py
+cd dist
+.\main.py
+```
