@@ -7,8 +7,9 @@ import sys
 import math
 
 #GLOBAL VARS
-BK_CLR = "#1b1464"
-FG_CLR = "#00ffc5"
+BK_CLR = "#1D7874"
+FG_CLR = "#F4C095"
+WRT_CLR = "#071E22"
 
 
 
@@ -65,7 +66,6 @@ class Stat:
         for letter in self.textInFile:
             self.letterFreqDict[letter] += 1
         self.sortedFreqList = sorted(self.letterFreqDict.items(), key=lambda kv: kv[1], reverse=1)
-        print(self.sortedFreqList)
         self.x_letters = np.array(list(self.letterFreqDict.keys()))
         self.y_freq = np.array(list(self.letterFreqDict.values()))
 
@@ -113,7 +113,7 @@ class Stat:
 
 
     def PMF(self):
-        plt.plot(self.x_letters, self.y_PMF)
+        plt.stem(self.x_letters, self.y_PMF)
         plt.show()
         pass
 
@@ -124,7 +124,11 @@ class Stat:
 
     def getStatistics(self):
         text = f"Mean:{round(self.mean,2)}\nVariance:{round(self.variance,2)}\nSkewness:{round(self.skewness,2)}\nKurtosis:{round(self.kurtosis,2)}"
-        return text
+        return [["Mean",round(self.mean,2)],
+                ["Variance",round(self.variance,2)],
+                ["std dev",round(self.stdDeviation,2)],
+                ["Skewness",round(self.skewness,2)],
+                ["Kurtosis",round(self.kurtosis,2)]]
 
 
 
@@ -144,13 +148,16 @@ class GUIApp:
         self.frame2 = tk.Frame(self.master,bg=BK_CLR, padx=10,pady=10)
         self.fileNameLabel = Label(self.frame2, text="File Name", font='Arial 11', bg=BK_CLR, fg=FG_CLR)
         self.HighestNumLabel = Label(self.frame2, text="# of Highest", font='Arial 11', bg=BK_CLR, fg=FG_CLR)
-        self.fileNameLabel.grid(row=0,column=0)
-        self.HighestNumLabel.grid(row=0,column=1)
+        #
 
-        self.fileNameEntry = Entry(self.frame2, bg=BK_CLR, fg='#ec008c')
-        self.HighestNumEntry = Entry(self.frame2, bg=BK_CLR, fg='#ec008c')
+        self.fileNameEntry = Entry(self.frame2, bg=BK_CLR, fg=WRT_CLR, font='Arial 14')
+        # self.HighestNumEntry = Entry(self.frame2, bg=BK_CLR, fg=WRT_CLR)
+        self.HighestNumEntry = tk.Scale(self.frame2, from_=0, to=30, orient="horizontal", bd=0,activebackground=BK_CLR, bg=WRT_CLR, fg=FG_CLR,troughcolor=BK_CLR, length=250,relief=tk.RAISED)
+
+        self.fileNameLabel.grid(row=0,column=0)
         self.fileNameEntry.grid(row=1,column=0)
-        self.HighestNumEntry.grid(row=1,column=1)
+        self.HighestNumLabel.grid(row=2, column=0)
+        self.HighestNumEntry.grid(row=3,column=0)
 
         ##########frame 3
         self.frame3 = tk.Frame(self.master,bg=BK_CLR,padx=10,pady=10)
@@ -166,7 +173,7 @@ class GUIApp:
         self.numHighestButton = Button(self.frame4, text='Most Freq', command=self.showHighestFreq, bg=FG_CLR, padx=15, pady=10, borderwidth=4)
         self.PMFButton = Button(self.frame4, text='show PMF', command=self.showPMF, bg=FG_CLR, padx=15, pady=10, borderwidth=4)
         self.CDFButton = Button(self.frame4, text='show CDF', command=self.showCDF, bg=FG_CLR, padx=15, pady=10, borderwidth=4)
-        self.someStatsButton = Button(self.frame4, text='some stats', command=self.showMean, bg=FG_CLR, padx=15, pady=10, borderwidth=4)
+        self.someStatsButton = Button(self.frame4, text='some stats', command=self.showStats, bg=FG_CLR, padx=15, pady=10, borderwidth=4)
         self.exitButton = Button(self.frame4, text='Exit App', command=self.exiting, bg=FG_CLR, padx=15, pady=10, borderwidth=4)
 
         self.freqButton.grid(row=0,column=0)
@@ -188,8 +195,8 @@ class GUIApp:
         sys.exit("Thanks for using T-Stat App...")
 
     def calculating(self):
-        self.fileNameText = self.fileNameEntry.get()
-        self.highestNumText = self.HighestNumEntry.get()
+        self.fileNameText = "sample.txt"#self.fileNameEntry.get()
+        self.highestNumText =10 #self.HighestNumEntry.get()
         self.statsApp = Stat(self.fileNameText, int(self.highestNumText))
         self.statsApp.calc()
         self.processingLabel.config(text=f"processing {self.fileNameText} file with {self.highestNumText} most frequent...")
@@ -208,7 +215,10 @@ class GUIApp:
         self.additionalWindow1 = tk.Toplevel(self.master)
 
         self.frameNew = tk.Frame(self.additionalWindow1)
+
         textOfHighest = self.statsApp.getHighest()
+
+
         Label(self.frameNew, text=textOfHighest, font='Arial 16', bg=BK_CLR, fg=FG_CLR).pack()
         self.frameNew.pack()
 
@@ -222,14 +232,16 @@ class GUIApp:
         self.validate()
         self.statsApp.CDF()
 
-    def showMean(self):
+    def showStats(self):
         self.validate()
         self.additionalWindow1 = tk.Toplevel(self.master,bg=BK_CLR)
         self.additionalWindow1.minsize(400, 250)
-
+        self.statsLabel = Label(self.additionalWindow1, text="Some Statistics", font='Arial 18 bold', bg=BK_CLR, fg=FG_CLR,pady=20)
         self.frameNew = tk.Frame(self.additionalWindow1,bg=BK_CLR)
-        textToShow = "Statistics\n\n"+self.statsApp.getStatistics()
-        Label(self.frameNew, text=textToShow, font='Arial 16', bg=BK_CLR, fg=FG_CLR).grid(row=0,column=0,sticky="w", padx=50,pady=50)
+        list = self.statsApp.getStatistics()
+        tableFrame = self.createTable(self.frameNew, list)
+        self.statsLabel.pack()
+        tableFrame.pack()
         self.frameNew.pack()
 
 
@@ -240,12 +252,24 @@ class GUIApp:
         plt.close('all')
         pass
 
+    def createTable(self, TableFrame, list):
+        table = tk.Frame(TableFrame, bg=BK_CLR, padx=10, pady=10)
+        for i in range(len(list)):
+            for j in range(len(list[0])):
+                e = Entry(table, width=10, bg=BK_CLR,fg=FG_CLR, font=('Arial', 16, 'bold')
+                          ,disabledbackground=BK_CLR,disabledforeground=FG_CLR)
+                e.grid(row=i, column=j)
+                e.insert(tk.END, list[i][j])
+                e.config(state=tk.DISABLED)
+        return table
+
+
 def main():
     root = tk.Tk()
     root.title('T-Stat App - Text File Statistics ')
     root.minsize(500, 400)
     root.config(bg=BK_CLR)
-    root.iconbitmap('icon.ico')
+    # root.iconbitmap('icon.ico')
 
     App = GUIApp(root)
     root.mainloop()
