@@ -127,8 +127,8 @@ class Stat:
         pass
 
     def getStatistics(self):
-        text = f"Mean:{round(self.mean,2)}\nVariance:{round(self.variance,2)}\nSkewness:{round(self.skewness,2)}\nKurtosis:{round(self.kurtosis,2)}"
-        return [["Mean",round(self.mean,2)],
+        return [["Char count", round(self.textFileLength, 0)],
+                ["Mean",round(self.mean,2)],
                 ["Mode", round(self.mode, 2)],
                 ["Median", round(self.median, 2)],
                 ["Variance",round(self.variance,2)],
